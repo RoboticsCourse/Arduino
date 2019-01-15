@@ -16,8 +16,8 @@ Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 // Adafruit_MotorShield AFMS = Adafruit_MotorShield(0x61); 
 
 // Select which 'port' M1, M2, M3 or M4. In this case, M1
+Adafruit_DCMotor *steer = AFMS.getMotor(3);
 Adafruit_DCMotor *frontDrive = AFMS.getMotor(4);
-Adafruit_DCMotor *steerDrive = AFMS.getMotor(3);
 Adafruit_DCMotor *rearDrive = AFMS.getMotor(2);
 // You can also make another motor on port M2
 //Adafruit_DCMotor *myOtherMotor = AFMS.getMotor(2);
@@ -30,28 +30,35 @@ void setup() {
   //AFMS.begin(1000);  // OR with a different frequency, say 1KHz
   
   // Set the speed to start, from 0 (off) to 255 (max speed)
-  frontDrive->setSpeed(150);
-  steerDrive->setSpeed(150);
-  rearDrive->setSpeed(150);
-  /*
+  steer->setSpeed(255);
+  frontDrive->setSpeed(255);
+  rearDrive->setSpeed(255);
+
+  // start motors
+  steer->run(FORWARD);
+  steer->run(RELEASE);
   frontDrive->run(FORWARD);
   frontDrive->run(RELEASE);
-
-  steerDrive->run(FORWARD);
-  steerDrive->run(RELEASE);
-  
   rearDrive->run(FORWARD);
   rearDrive->run(RELEASE);
-*/
+
   // run for 1 second
+  steer->run(FORWARD);
   frontDrive->run(FORWARD);
-  steerDrive->run(FORWARD);
   rearDrive->run(FORWARD);
   
-  delay(5000);
-  
+  delay(3000);
+  //steer->run(BACKWARD);
+  //delay(3000);
+
+
+  // halt robot, kill motors
+  steer->setSpeed(0);
+  frontDrive->setSpeed(0);
+  rearDrive->setSpeed(0);
+  delay(100);  
+  steer->run(RELEASE);
   frontDrive->run(RELEASE);
-  steerDrive->run(RELEASE);
   rearDrive->run(RELEASE);
 }
 

@@ -1,0 +1,6 @@
+switched left: 
+
+180 degrees
+	-turning 255
+	-motor 255
+	-3 seconds
