@@ -2,6 +2,7 @@
 #include "Adafruit_BLE_UART.h"
 
 #include "bluetooth.h"
+#include "move_motor.h"
 
 // Connect CLK/MISO/MOSI to hardware SPI
 // e.g. On UNO & compatible: CLK = 13, MISO = 12, MOSI = 11
@@ -12,7 +13,10 @@
 Adafruit_BLE_UART BTLEserial = Adafruit_BLE_UART(ADAFRUITBLE_REQ, ADAFRUITBLE_RDY, ADAFRUITBLE_RST);
 aci_evt_opcode_t laststatus = ACI_EVT_DISCONNECTED;
 
-Bluetooth::Bluetooth(HardwareSerial & p){
+Navigation *navo;
+
+Bluetooth::Bluetooth(HardwareSerial & p, Navigation *navigation){
+    navo = navigation;
     printer = &p;
     BTLEserial.setDeviceName("Car_1"); /* 7 characters max! */
     BTLEserial.begin();
@@ -55,6 +59,9 @@ void Bluetooth::BLEscan(){
     while (BTLEserial.available()) {
       char c = BTLEserial.read();
       printer->print(c);
+      if(c == 'a'){
+        navo->queueForward();
+      }
     }
 
     // Next up, see if we have any data to get from the Serial console

@@ -10,7 +10,7 @@ For use with the Adafruit Motor Shield v2
 #include "move_motor.h"
 #include "bluetooth.h"
 
-Bluetooth bluetooth;
+Bluetooth* bluetooth;
 
 Navigation nav;
 
@@ -18,17 +18,17 @@ void setup() {
   Serial.begin(9600);           // set up Serial library at 9600 bps
   Serial.println("Adafruit Motorshield v2 - DC Motor test!");
   
-  bluetooth = new Bluetooth(Serial);
+  bluetooth = new Bluetooth(Serial, &nav);
   
   nav.setPrinter(Serial);
-  nav.queueForward();
-  nav.queueForward();
-  nav.queueForward();
-  nav.queueForward();
+  //nav.queueForward();
+  //nav.queueForward();
+  //nav.queueForward();
+  //nav.queueForward();
 }
 
 void loop() {
   //delay(1000);
-  //nav.queryCommand();
-  bluetooth.BLEscan();
+  nav.queryCommand();
+  bluetooth->BLEscan();
 }
