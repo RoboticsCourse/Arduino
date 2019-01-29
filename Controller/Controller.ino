@@ -21,7 +21,7 @@ void setup() {
   bluetooth = new Bluetooth(Serial, &nav);
   
   nav.setPrinter(Serial);
-  //nav.queueForward();
+  nav.queueForward();
   //nav.queueForward();
   //nav.queueForward();
   //nav.queueForward();

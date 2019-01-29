@@ -15,6 +15,8 @@ Adafruit_DCMotor *rearDrive = AFMS.getMotor(2);
 int motors[4];
 int moving;
 
+int interval = 200;
+
 struct action{
   int force;
   int type;
@@ -24,7 +26,7 @@ struct action{
 QueueArray <action *> queue;
 
 Navigation::Navigation(){
-  
+  speed = 70;
   moving = 0; //not moving
 }
 
@@ -47,8 +49,8 @@ void Navigation::queryCommand(){
 void Navigation::queueForward(){
   action *movement = (action *) malloc(sizeof(action));
   movement->type = 1;
-  movement->interval = 1000;
-  movement->force = 100;
+  movement->interval = interval;
+  movement->force = speed;
   queue.enqueue(movement);
   
   if (printer){
@@ -56,6 +58,25 @@ void Navigation::queueForward(){
   }
   
 }
+
+void Navigation::IncreaseSpeed(){
+  speed += 1;
+  if(speed >= 200){
+    speed = 200;
+  }
+  frontDrive->setSpeed(speed);
+  rearDrive->setSpeed(speed);
+}
+
+void Navigation::DecreaseSpeed(){
+  speed -= 1;
+  if(speed <= 50){
+    speed = 50;
+  }
+  frontDrive->setSpeed(speed);
+  rearDrive->setSpeed(speed);
+}
+
 
 void Navigation::move_forward(int force, int interval) {
   
@@ -65,14 +86,14 @@ void Navigation::move_forward(int force, int interval) {
   
   // Set the speed to start, from 0 (off) to 255 (max speed)
   
-  frontDrive->setSpeed(interval);
-  rearDrive->setSpeed(interval);
+  frontDrive->setSpeed(force);
+  rearDrive->setSpeed(force);
 
   //start motors
   steer->run(FORWARD);
   frontDrive->run(FORWARD);
   rearDrive->run(FORWARD);
-
+/*
   // run for 1 second
   delay(interval);
   
@@ -84,6 +105,7 @@ void Navigation::move_forward(int force, int interval) {
   frontDrive->run(RELEASE);
   rearDrive->run(RELEASE);
   moving = 0;
+  */
 }
 
 void Navigation::turn(int force, int interval) {

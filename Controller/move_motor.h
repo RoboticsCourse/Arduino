@@ -10,7 +10,10 @@ class Navigation
     void queryCommand();
     void queueForward();
     void setPrinter(Print & p);
+    void IncreaseSpeed();
+    void DecreaseSpeed();
     Print * printer;
+    int speed;
 };
 
 #endif
