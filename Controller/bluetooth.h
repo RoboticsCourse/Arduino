@@ -9,8 +9,6 @@ class Bluetooth
     Bluetooth(HardwareSerial &p, Navigation *nav);
     void BLEscan();
     HardwareSerial * printer;
-    
-    
 };
 
 #endif

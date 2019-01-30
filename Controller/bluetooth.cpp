@@ -15,6 +15,8 @@ aci_evt_opcode_t laststatus = ACI_EVT_DISCONNECTED;
 
 Navigation *navo;
 
+char string[20] = {0};
+
 Bluetooth::Bluetooth(HardwareSerial & p, Navigation *navigation){
     navo = navigation;
     printer = &p;
@@ -59,16 +61,23 @@ void Bluetooth::BLEscan(){
     while (BTLEserial.available()) {
       char c = BTLEserial.read();
       printer->print(c);
-      if(c == 'a'){
+      if(c == 0){
+        string[20] = {0};
+        printer->print("CLEAR!!!!");
+      }
+      else{
+        if(c == 'a'){
         navo->queueForward();
+        }
+        if(c == 'b'){
+          navo->IncreaseSpeed();
+        }
+        if(c == 'c'){
+          navo->DecreaseSpeed();
+        }
       }
       
-      if(c == 'b'){
-        navo->IncreaseSpeed();
-      }
-      if(c == 'c'){
-        navo->DecreaseSpeed();
-      }
+      
       
     }
 
