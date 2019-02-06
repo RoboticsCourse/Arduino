@@ -16,6 +16,10 @@ aci_evt_opcode_t laststatus = ACI_EVT_DISCONNECTED;
 Navigation *navo;
 
 char string[20] = {0};
+int force = 0;
+bool motor_on = false;
+bool steer_on = false; 
+bool neg = false;
 
 Bluetooth::Bluetooth(HardwareSerial & p, Navigation *navigation){
     navo = navigation;
@@ -54,31 +58,51 @@ void Bluetooth::BLEscan(){
 
   if (status == ACI_EVT_CONNECTED) {
     // Lets see if there's any data for us!
+    /*
     if (BTLEserial.available()) {
       printer->print("* "); printer->print(BTLEserial.available()); printer->println(F(" bytes available from BTLE"));
     }
+    */
     // OK while we still have something to read, get a character and print it out
     while (BTLEserial.available()) {
       char c = BTLEserial.read();
-      printer->print(c);
+      
       if(c == 0){
         string[20] = {0};
-        printer->print("CLEAR!!!!");
+        //printer->print("CLEAR!!!!");
+        if(neg){
+          force *= -1;
+          neg = false;
+        }
+        if(motor_on){
+          navo->MotorSpeed(force);
+          printer->println(force);
+          motor_on = false;
+        }
+        if(steer_on){
+          navo->SteerSpeed(force);
+          //printer->println(force);
+          steer_on = false;
+        }
+        //printer->print(force);
+        force = 0;
+      }
+      else if(c == 'F'){
+        motor_on = true;
+      }
+      else if(c == 'S'){
+        steer_on = true;
+      }
+      else if(c == 'X'){
+        navo->stop_all();
+      }
+      else if(c == '-'){
+        neg = true;
       }
       else{
-        if(c == 'a'){
-        navo->queueForward();
-        }
-        if(c == 'b'){
-          navo->IncreaseSpeed();
-        }
-        if(c == 'c'){
-          navo->DecreaseSpeed();
-        }
+        int x = c - '0';
+        force = force * 10 + x;
       }
-      
-      
-      
     }
 
     // Next up, see if we have any data to get from the Serial console

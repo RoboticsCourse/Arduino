@@ -59,22 +59,49 @@ void Navigation::queueForward(){
   
 }
 
-void Navigation::IncreaseSpeed(){
-  speed += 1;
-  if(speed >= 200){
-    speed = 200;
+void Navigation::MotorSpeed(int force){
+  if(force >= 200){
+    force = 200;
   }
-  frontDrive->setSpeed(speed);
-  rearDrive->setSpeed(speed);
+  else if(force <= -200){
+    force =-200;
+  }
+
+  if(force > 0){
+     frontDrive->run(FORWARD);
+     rearDrive->run(FORWARD);
+     
+     frontDrive->setSpeed(force);
+     rearDrive->setSpeed(force);
+  }
+  else{
+    force *= -1;
+     frontDrive->run(BACKWARD);
+     rearDrive->run(BACKWARD);
+
+      frontDrive->setSpeed(force);
+      rearDrive->setSpeed(force);
+  }
+  
+
+  
 }
 
-void Navigation::DecreaseSpeed(){
-  speed -= 1;
-  if(speed <= 50){
-    speed = 50;
+void Navigation::SteerSpeed(int force){
+  if(force >= 200){
+    force = 200;
   }
-  frontDrive->setSpeed(speed);
-  rearDrive->setSpeed(speed);
+  else if(force <= -200){
+    force =-200;
+  }
+  steer->setSpeed(force);
+
+  if(force > 0){
+     steer->run(FORWARD);
+  }
+  else{
+     steer->run(BACKWARD);
+  }
 }
 
 
@@ -93,19 +120,19 @@ void Navigation::move_forward(int force, int interval) {
   steer->run(FORWARD);
   frontDrive->run(FORWARD);
   rearDrive->run(FORWARD);
-/*
-  // run for 1 second
-  delay(interval);
-  
+
+}
+
+void Navigation::stop_all(){
   // halt robot
   frontDrive->setSpeed(0);
   rearDrive->setSpeed(0);
+  steer->setSpeed(0);
   delay(100);
   //kill motors
   frontDrive->run(RELEASE);
   rearDrive->run(RELEASE);
-  moving = 0;
-  */
+  steer->run(RELEASE);
 }
 
 void Navigation::turn(int force, int interval) {

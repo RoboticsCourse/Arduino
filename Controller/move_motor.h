@@ -10,8 +10,10 @@ class Navigation
     void queryCommand();
     void queueForward();
     void setPrinter(Print & p);
-    void IncreaseSpeed();
+    void MotorSpeed(int force);
+    void SteerSpeed(int force);
     void DecreaseSpeed();
+    void stop_all();
     Print * printer;
     int speed;
 };
