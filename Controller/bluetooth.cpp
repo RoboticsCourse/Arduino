@@ -1,8 +1,4 @@
-#include <SPI.h>
-#include "Adafruit_BLE_UART.h"
-
 #include "bluetooth.h"
-#include "move_motor.h"
 
 // Connect CLK/MISO/MOSI to hardware SPI
 // e.g. On UNO & compatible: CLK = 13, MISO = 12, MOSI = 11
@@ -15,24 +11,15 @@ aci_evt_opcode_t laststatus = ACI_EVT_DISCONNECTED;
 
 Navigation *navo;
 
-char string[20] = {0};
-int force = 0;
+uint8_t force = 0;
 bool motor_on = false;
 bool steer_on = false; 
 bool neg = false;
 
-Bluetooth::Bluetooth(HardwareSerial & p, Navigation *navigation){
+Bluetooth::Bluetooth(Navigation *navigation){
     navo = navigation;
-    printer = &p;
     BTLEserial.setDeviceName("Car_1"); /* 7 characters max! */
     BTLEserial.begin();
-    printer->println(F("Adafruit Bluefruit Low Energy nRF8001 Print echo demo"));
-    if(BTLEserial.available()){
-        printer->println(F("Available"));
-    }
-    else{
-        printer->println(F("Unavailable"));
-    }
 }
 
 void Bluetooth::BLEscan(){
@@ -43,15 +30,15 @@ void Bluetooth::BLEscan(){
   // If the status changed....
   if (status != laststatus) {
     // print it out!
-    if (status == ACI_EVT_DEVICE_STARTED) {
-        printer->println(F("* Advertising started"));
-    }
-    if (status == ACI_EVT_CONNECTED) {
-        printer->println(F("* Connected!"));
-    }
-    if (status == ACI_EVT_DISCONNECTED) {
-        printer->println(F("* Disconnected or advertising timed out"));
-    }
+    // if (status == ACI_EVT_DEVICE_STARTED) {
+    //     printer->println(F("* Advertising started"));
+    // }
+    // else if (status == ACI_EVT_CONNECTED) {
+    //     printer->println(F("* Connected!"));
+    // }
+    // else if (status == ACI_EVT_DISCONNECTED) {
+    //     printer->println(F("* Disconnected or advertising timed out"));
+    // }
     // OK set the last status change to this one
     laststatus = status;
   }
@@ -65,18 +52,17 @@ void Bluetooth::BLEscan(){
     */
     // OK while we still have something to read, get a character and print it out
     while (BTLEserial.available()) {
-      char c = BTLEserial.read();
+      char c = BTLEserial.read(); // read input from phone
       
       if(c == 0){
-        string[20] = {0};
         //printer->print("CLEAR!!!!");
-        if(neg){
+        if(neg){ // direction
           force *= -1;
           neg = false;
         }
         if(motor_on){
           navo->MotorSpeed(force);
-          printer->println(force);
+          // printer->println(force);
           motor_on = false;
         }
         if(steer_on){
@@ -100,27 +86,27 @@ void Bluetooth::BLEscan(){
         neg = true;
       }
       else{
-        int x = c - '0';
+        int x = c - '0'; // convert char to int
         force = force * 10 + x;
       }
     }
 
     // Next up, see if we have any data to get from the Serial console
 
-    if (printer->available()) {
-      // Read a line from Serial
-      printer->setTimeout(100); // 100 millisecond timeout
-      String s = printer->readString();
+    // if (printer->available()) {
+    //   // Read a line from Serial
+    //   printer->setTimeout(100); // 100 millisecond timeout
+    //   String s = printer->readString();
 
-      // We need to convert the line to bytes, no more than 20 at this time
-      uint8_t sendbuffer[20];
-      s.getBytes(sendbuffer, 20);
-      char sendbuffersize = min(20, s.length());
+    //   // We need to convert the line to bytes, no more than 20 at this time
+    //   uint8_t sendbuffer[20];
+    //   s.getBytes(sendbuffer, 20);
+    //   char sendbuffersize = min(20, s.length());
 
-      printer->print(F("\n* Sending -> \"")); printer->print((char *)sendbuffer); printer->println("\"");
+    //   printer->print(F("\n* Sending -> \"")); printer->print((char *)sendbuffer); printer->println("\"");
 
-      // write the data
-      BTLEserial.write(sendbuffer, sendbuffersize);
-    }
+    //   // write the data
+    //   BTLEserial.write(sendbuffer, sendbuffersize);
+    // }
   }
 }
