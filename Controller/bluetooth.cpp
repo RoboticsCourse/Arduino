@@ -11,7 +11,7 @@ aci_evt_opcode_t laststatus = ACI_EVT_DISCONNECTED;
 
 Navigation *navo;
 
-uint8_t force = 0;
+int force = 0;
 bool motor_on = false;
 bool steer_on = false; 
 bool neg = false;
