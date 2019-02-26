@@ -16,97 +16,83 @@ bool motor_on = false;
 bool steer_on = false; 
 bool neg = false;
 
-Bluetooth::Bluetooth(Navigation *navigation){
-    navo = navigation;
-    BTLEserial.setDeviceName("Car_1"); /* 7 characters max! */
-    BTLEserial.begin();
+Bluetooth::Bluetooth(Navigation *navigation) {
+  // navo = navigation;
+  // BTLEserial.setDeviceName("Car_1"); /* 7 characters max! */
+  // BTLEserial.begin();
 }
 
-void Bluetooth::BLEscan(){
-  // Tell the nRF8001 to do whatever it should be working on.
-  BTLEserial.pollACI();
-  // Ask what is our current status
-  aci_evt_opcode_t status = BTLEserial.getState();
-  // If the status changed....
-  if (status != laststatus) {
-    // print it out!
-    // if (status == ACI_EVT_DEVICE_STARTED) {
-    //     printer->println(F("* Advertising started"));
-    // }
-    // else if (status == ACI_EVT_CONNECTED) {
-    //     printer->println(F("* Connected!"));
-    // }
-    // else if (status == ACI_EVT_DISCONNECTED) {
-    //     printer->println(F("* Disconnected or advertising timed out"));
-    // }
-    // OK set the last status change to this one
-    laststatus = status;
-  }
+void Bluetooth::BLEscan() {
+  // // Tell the nRF8001 to do whatever it should be working on.
+  // BTLEserial.pollACI();
 
-  if (status == ACI_EVT_CONNECTED) {
-    // Lets see if there's any data for us!
-    /*
-    if (BTLEserial.available()) {
-      printer->print("* "); printer->print(BTLEserial.available()); printer->println(F(" bytes available from BTLE"));
-    }
-    */
-    // OK while we still have something to read, get a character and print it out
-    while (BTLEserial.available()) {
-      char c = BTLEserial.read(); // read input from phone
+  // aci_evt_opcode_t status = BTLEserial.getState();
+
+  // if (status != laststatus) {
+  //   // OK set the last status change to this one
+  //   laststatus = status;
+  // }
+
+  // if (status == ACI_EVT_CONNECTED) {
+  //   // Lets see if there's any data for us!
+  //   /*
+  //   if (BTLEserial.available()) {
+  //     printer->print("* "); printer->print(BTLEserial.available()); printer->println(F(" bytes available from BTLE"));
+  //   }
+  //   */
+  //   // OK while we still have something to read, get a character and print it out
+  //   while (BTLEserial.available()) {
+  //     char c = BTLEserial.read(); // read input from phone
       
-      if(c == 0){
-        //printer->print("CLEAR!!!!");
-        if(neg){ // direction
-          force *= -1;
-          neg = false;
-        }
-        if(motor_on){
-          navo->MotorSpeed(force);
-          // printer->println(force);
-          motor_on = false;
-        }
-        if(steer_on){
-          navo->SteerSpeed(force);
-          //printer->println(force);
-          steer_on = false;
-        }
-        //printer->print(force);
-        force = 0;
-      }
-      else if(c == 'F'){
-        motor_on = true;
-      }
-      else if(c == 'S'){
-        steer_on = true;
-      }
-      else if(c == 'X'){
-        navo->stop_all();
-      }
-      else if(c == '-'){
-        neg = true;
-      }
-      else{
-        int x = c - '0'; // convert char to int
-        force = force * 10 + x;
-      }
-    }
+  //     if (c == 0) {
+  //       if (neg) { // direction
+  //         force *= -1;
+  //         neg = false;
+  //       }
+  //       if (motor_on) {
+  //         navo->MotorSpeed(force);
+  //         motor_on = false;
+  //       }
+  //       if (steer_on) {
+  //         navo->SteerSpeed(force);
+  //         steer_on = false;
+  //       }
+  //       force = 0;
+  //     }
+  //     else if (c == 'F') {
+  //       motor_on = true;
+  //     }
+  //     else if (c == 'S') {
+  //       steer_on = true;
+  //     }
+  //     else if (c == 'X') {
+  //       navo->stop_all();
+  //     }
+  //     else if (c == '-') {
+  //       neg = true;
+  //     }
+  //     else {
+  //       int x = c - '0'; // convert char to int
+  //       force = force * 10 + x;
+  //     }
+  //   }
 
-    // Next up, see if we have any data to get from the Serial console
+  //   // Next up, see if we have any data to get from the Serial console
 
-    // if (printer->available()) {
-    //   // Read a line from Serial
-    //   printer->setTimeout(100); // 100 millisecond timeout
-    //   String s = printer->readString();
+  //   // if (printer->available()) {
+  //   //   // Read a line from Serial
+  //   //   printer->setTimeout(100); // 100 millisecond timeout
+  //   //   String s = printer->readString();
 
-    //   // We need to convert the line to bytes, no more than 20 at this time
-    //   uint8_t sendbuffer[20];
-    //   s.getBytes(sendbuffer, 20);
-    //   char sendbuffersize = min(20, s.length());
+  //   //   // We need to convert the line to bytes, no more than 20 at this time
+  //   //   uint8_t sendbuffer[20];
+  //   //   s.getBytes(sendbuffer, 20);
+  //   //   char sendbuffersize = min(20, s.length());
 
-    //   printer->print(F("\n* Sending -> \"")); printer->print((char *)sendbuffer); printer->println("\"");
+  //   //   printer->print(F("\n* Sending -> \"")); printer->print((char *)sendbuffer); printer->println("\"");
 
-    //   // write the data
-    //   BTLEserial.write(sendbuffer, sendbuffersize);
-    // }
-  }
+  //   //   // write the data
+  //   //   BTLEserial.write(sendbuffer, sendbuffersize);
+  //   // }
+  // }
 }
