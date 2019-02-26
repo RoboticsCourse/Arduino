@@ -63,6 +63,7 @@ void Navigation::move_forward(int force, int interval) {
   
   frontDrive->setSpeed(force);
   rearDrive->setSpeed(force);
+  steer->setSpeed(force);
 
   //start motors
   steer->run(FORWARD);

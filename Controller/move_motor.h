@@ -14,8 +14,6 @@ class Navigation
     void MotorSpeed(int force);
     void SteerSpeed(int force);
     void stop_all();
-    // Print *printer;
-    uint8_t speed;
 };
 
 #endif
