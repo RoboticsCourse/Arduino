@@ -66,7 +66,7 @@ void Bluetooth::BLEscan() {
         steer_on = true;
       }
       else if (c == 'X') {
-        navo->stop_all();
+        navo->stopMotors();
       }
       else if (c == '-') {
         neg = true;

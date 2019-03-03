@@ -2,77 +2,81 @@
 
 
 Adafruit_MotorShield AFMS = Adafruit_MotorShield();
-Adafruit_DCMotor *steer = AFMS.getMotor(3);
-Adafruit_DCMotor *frontDrive = AFMS.getMotor(4);
-Adafruit_DCMotor *rearDrive = AFMS.getMotor(2);
+Adafruit_DCMotor *frontMotor = AFMS.getMotor(4);
+Adafruit_DCMotor *rearMotor = AFMS.getMotor(2);
+Adafruit_DCMotor *turnMotor = AFMS.getMotor(3);
 
-
-void Navigation::MotorSpeed(int force){
-  if(force >= 200){
-    force = 200;
+int limitSpeed(int force, int lower_limit, int upper_limit){
+  if(force >= upper_limit){
+    force = upper_limit;
   }
-  else if(force <= -200){
-    force =-200;
+  else if(force <= lower_limit){
+    force = lower_limit;
   }
-
-  if(force > 0){
-    frontDrive->run(FORWARD);
-    rearDrive->run(FORWARD);
-     
-    frontDrive->setSpeed(force);
-    rearDrive->setSpeed(force);
-  }
-  else{
-    force *= -1;
-    frontDrive->run(BACKWARD);
-    rearDrive->run(BACKWARD);
-
-    frontDrive->setSpeed(force);
-    rearDrive->setSpeed(force);
-  }
-  
-
-  
+  return force;
 }
 
-void Navigation::SteerSpeed(int force){
-  if(force >= 200){
-    force = 200;
-  }
-  else if(force <= -200){
-    force =-200;
-  }
-  steer->setSpeed(force);
+void Navigation::goForward(int speed) {
+    frontMotor->setSpeed(speed);
+    frontMotor->run(FORWARD);
+    rearMotor->setSpeed(speed);
+    rearMotor->run(FORWARD);
+}
 
-  if(force > 0){
-    steer->run(FORWARD);
-  }
-  else{
-    steer->run(BACKWARD);
-  }
+void Navigation::goBackward(int speed) {
+    frontMotor->setSpeed(speed);
+    frontMotor->run(BACKWARD);
+    rearMotor->setSpeed(speed);
+    rearMotor->run(BACKWARD);   
+}
+
+void Navigation::straighten() {
+    turnMotor->setSpeed(0);
+    delay(1);
+    turnMotor->run(RELEASE);
+}
+
+void Navigation::turnLeft(int speed) {
+    turnMotor->setSpeed(speed);
+    turnMotor->run(FORWARD);
+}
+
+void Navigation::turnRight(int speed) {
+    turnMotor->setSpeed(speed);
+    turnMotor->run(BACKWARD);
 }
 
 
-void Navigation::setup() {
-  
-  // create with the default frequency 1.6KHz
+void Navigation::MotorSpeed(int speed){
+  speed = limitSpeed(speed, -200,200);
+  if(speed > 0) goForward(speed);
+  else{
+    speed *= -1;
+    goBackward(speed);
+  }
+}
+
+void Navigation::SteerSpeed(int speed){
+  speed = limitSpeed(speed, -200,200);
+  turnMotor->setSpeed(speed);
+  if(speed > 0) turnMotor->run(FORWARD);
+  else turnMotor->run(BACKWARD);
+}
+
+
+void Navigation::setup(){
+  // create with the defalt frequency 1.6KHz
   AFMS.begin(1600);
-
-  //start motors
-  steer->run(FORWARD);
-  frontDrive->run(FORWARD);
-  rearDrive->run(FORWARD);
-
 }
 
-void Navigation::stop_all(){
+void Navigation::stopMotors(){
   // halt robot
-  frontDrive->setSpeed(0);
-  rearDrive->setSpeed(0);
-  steer->setSpeed(0);
+  frontMotor->setSpeed(0);
+  rearMotor->setSpeed(0);
+  turnMotor->setSpeed(0);
   delay(100);
   //kill motors
-  frontDrive->run(RELEASE);
-  rearDrive->run(RELEASE);
-  steer->run(RELEASE);
+  frontMotor->run(RELEASE);
+  rearMotor->run(RELEASE);
+  turnMotor->run(RELEASE);
 }
