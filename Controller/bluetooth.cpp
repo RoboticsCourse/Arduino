@@ -9,6 +9,7 @@
 Adafruit_BLE_UART BTLEserial = Adafruit_BLE_UART(ADAFRUITBLE_REQ, ADAFRUITBLE_RDY, ADAFRUITBLE_RST);
 aci_evt_opcode_t laststatus = ACI_EVT_DISCONNECTED;
 
+
 Navigation *navo;
 
 int force = 0;
@@ -27,12 +28,7 @@ void Bluetooth::BLEscan() {
   BTLEserial.pollACI();
 
   aci_evt_opcode_t status = BTLEserial.getState();
-
-  if (status != laststatus) {
-    // OK set the last status change to this one
-    laststatus = status;
-  }
-
+  
   if (status == ACI_EVT_CONNECTED) {
     // Lets see if there's any data for us!
     /*
@@ -76,23 +72,14 @@ void Bluetooth::BLEscan() {
         force = force * 10 + x;
       }
     }
-
-    // Next up, see if we have any data to get from the Serial console
-
-    // if (printer->available()) {
-    //   // Read a line from Serial
-    //   printer->setTimeout(100); // 100 millisecond timeout
-    //   String s = printer->readString();
-
-    //   // We need to convert the line to bytes, no more than 20 at this time
-    //   uint8_t sendbuffer[20];
-    //   s.getBytes(sendbuffer, 20);
-    //   char sendbuffersize = min(20, s.length());
-
-    //   printer->print(F("\n* Sending -> \"")); printer->print((char *)sendbuffer); printer->println("\"");
-
-    //   // write the data
-    //   BTLEserial.write(sendbuffer, sendbuffersize);
-    // }
   }
+}
+
+void Bluetooth::sendDistance(String prefix, int distance){
+    prefix.concat(String(distance));
+
+    uint8_t sendbuffer[20];
+    prefix.getBytes(sendbuffer, 20);
+    char sendbuffersize = min(20, prefix.length());
+    BTLEserial.write(sendbuffer, sendbuffersize);
 }

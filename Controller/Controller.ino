@@ -1,8 +1,8 @@
 #include "bluetooth.h"
-#include "IR.h"
+#include "Ultrasonic.h"
 
 Bluetooth* bluetooth;
-IR *ir;
+US *us;
 Navigation nav; // auto initializes it
 
 void setup() {
@@ -10,11 +10,13 @@ void setup() {
   bluetooth = new Bluetooth(&nav);
   
   nav.setup();
-  ir = new IR(&nav);
+  us = new US(&nav);
 
 }
 
 void loop() {
+  us->sensorLoop();
+  bluetooth->sendDistance("Front: ",us->get_front_dist());
+  bluetooth->sendDistance("Side: ",us->get_side_dist());
   bluetooth->BLEscan(); // connects to new device; if it's connected, does nothing
-  ir->sensorLoop();
 }

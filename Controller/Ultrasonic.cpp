@@ -1,8 +1,8 @@
-#include "IR.h"
+#include "Ultrasonic.h"
 
 #define SIDE_TRIG_PIN 5
 #define SIDE_ECHO_PIN 6
-#define FRONT_TRIG_PIN 3 // white is trig
+#define FRONT_TRIG_PIN 4 // white is trig
 #define FRONT_ECHO_PIN 8 // brown is echo
 #define SIDE_THRESH_HIGH 70
 #define SIDE_THRESH_LOW 45
@@ -10,46 +10,58 @@
 #define SPEED 80
 
 // defines distance variables
+
+int tmp;
+int wheel_speed;
+int turn_speed;
 int sideDist;
 int frontDist;
-int tmp;
-
 Navigation *navi;
 
-IR::IR(Navigation *navigation){
+US::US(Navigation *navigation){
      // communication with sensors for debugging
     Serial.begin(9600);
     navi = navigation;
+    sideDist = 0;
+    frontDist = 0;
+    wheel_speed = 60;
+    turn_speed = 255;
+
     // set sensor pins accordingly
-    pinMode(SIDE_TRIG_PIN, OUTPUT);
-    pinMode(SIDE_ECHO_PIN, INPUT);
-    pinMode(FRONT_TRIG_PIN, OUTPUT);
-    pinMode(FRONT_ECHO_PIN, INPUT);
 }
 
 void readSensors() {
     
-    // clear the trig pins
+    pinMode(SIDE_TRIG_PIN, OUTPUT);
     digitalWrite(SIDE_TRIG_PIN, LOW);
-    digitalWrite(FRONT_TRIG_PIN, LOW);
     delayMicroseconds(2);
-
-    // set the trig pins on HIGH state for 10 micro seconds
     digitalWrite(SIDE_TRIG_PIN, HIGH);
-    digitalWrite(FRONT_TRIG_PIN, HIGH);
     delayMicroseconds(10);
     digitalWrite(SIDE_TRIG_PIN, LOW);
-    digitalWrite(FRONT_TRIG_PIN, LOW);
+    pinMode(SIDE_ECHO_PIN, INPUT);
 
     // read the echo pins, get the sound wave travel time in microseconds, calculate the distance
     tmp = pulseIn(SIDE_ECHO_PIN, HIGH) * 0.034/2;
-    sideDist = (tmp != 0) ? tmp : sideDist;
+    //sideDist = (tmp != 0) ? tmp : sideDist;
+    sideDist = tmp;
+
+    pinMode(FRONT_TRIG_PIN, OUTPUT);
+    // clear the trig pins
+    digitalWrite(FRONT_TRIG_PIN, LOW);
+    delayMicroseconds(2);
+    // set the trig pins on HIGH state for 10 micro seconds
+    digitalWrite(FRONT_TRIG_PIN, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(FRONT_TRIG_PIN, LOW);
+    pinMode(FRONT_ECHO_PIN, INPUT);
+    
     tmp = pulseIn(FRONT_ECHO_PIN, HIGH) * 0.034/2;
-    frontDist = (tmp != 0) ? tmp : frontDist;
+    //frontDist = (tmp != 0) ? tmp : frontDist;
+    frontDist = tmp;
 }
 
 
-void IR::sensorLoop(){
+void US::sensorLoop(){
     readSensors();
 
     // debug code block here
@@ -57,29 +69,41 @@ void IR::sensorLoop(){
     Serial.print(frontDist);
     Serial.print("\tSide Distance: ");
     Serial.println(sideDist);
-
+/*
     if (frontDist < FRONT_THRESH) {
         if (sideDist < SIDE_THRESH_HIGH) {  // when encountering front and side walls, backup to the right
-            navi->turnRight(255);
-            navi->goBackward(80);
+            navi->turnRight(turn_speed);
+            navi->goBackward(wheel_speed);
             delay(1500);
         } else {                            // when encountering only the front wall, back up to the left
-            navi->turnLeft(255);
-            navi->goBackward(80);
+            navi->turnLeft(turn_speed);
+            navi->goBackward(wheel_speed);
             delay(1500);
         }
     } else {    // when in a hallway, try to keep an equal distance between the walls
         if (sideDist < SIDE_THRESH_LOW) {
-            navi->turnLeft(255);
-            navi->goForward(80);
+            navi->turnLeft(turn_speed);
+            navi->goForward(wheel_speed);
         } else if (sideDist < SIDE_THRESH_HIGH){
             navi->straighten();
-            navi->goForward(80);
+            navi->goForward(wheel_speed);
         } else {
-            navi->turnRight(255);
-            navi->goForward(80);
+            navi->turnRight(turn_speed);
+            navi->goForward(wheel_speed);
         }
     }
+    */
 }
 
-
+int US::get_wheel_speed(){
+    return wheel_speed;
+}
+int US::get_turn_speed(){
+    return turn_speed;
+}
+int US::get_side_dist(){
+    return sideDist;
+}
+int US::get_front_dist(){
+    return frontDist;
+}
