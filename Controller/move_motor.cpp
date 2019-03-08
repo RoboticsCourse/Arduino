@@ -48,7 +48,7 @@ void Navigation::turnRight(int speed) {
 
 
 void Navigation::MotorSpeed(int speed){
-  speed = limitSpeed(speed, -200,200);
+  //speed = limitSpeed(speed, -200,200);
   if(speed > 0) goForward(speed);
   else{
     speed *= -1;
@@ -57,10 +57,15 @@ void Navigation::MotorSpeed(int speed){
 }
 
 void Navigation::SteerSpeed(int speed){
-  speed = limitSpeed(speed, -200,200);
+  //speed = limitSpeed(speed, -200,200);
+  if(speed > 0) {
+    turnMotor->run(FORWARD);
+  }
+  else {
+    speed *= -1;
+    turnMotor->run(BACKWARD);
+  }
   turnMotor->setSpeed(speed);
-  if(speed > 0) turnMotor->run(FORWARD);
-  else turnMotor->run(BACKWARD);
 }
 
 

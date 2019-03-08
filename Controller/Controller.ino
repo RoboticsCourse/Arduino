@@ -10,13 +10,13 @@ void setup() {
   bluetooth = new Bluetooth(&nav);
   
   nav.setup();
-  us = new US(&nav);
+  //us = new US(&nav);
 
 }
 
 void loop() {
-  us->sensorLoop();
-  bluetooth->sendDistance("Front: ",us->get_front_dist());
-  bluetooth->sendDistance("Side: ",us->get_side_dist());
+  //us->sensorLoop();
+  //bluetooth->sendDistance("Front: ",us->get_front_dist());
+  //bluetooth->sendDistance("Side: ",us->get_side_dist());
   bluetooth->BLEscan(); // connects to new device; if it's connected, does nothing
 }
