@@ -18,6 +18,10 @@ int sideDist;
 int frontDist;
 Navigation *navi;
 
+
+bool front = true;
+bool side = false;
+
 US::US(Navigation *navigation){
      // communication with sensors for debugging
     Serial.begin(9600);
@@ -44,9 +48,13 @@ int readSensor(int trig_pin, int echo_pin) {
 
 
 void US::sensorLoop(){
-    frontDist = readSensor(FRONT_TRIG_PIN, FRONT_ECHO_PIN);
-    sideDist = readSensor(SIDE_TRIG_PIN, SIDE_ECHO_PIN);
-
+    if(front){
+        frontDist = readSensor(FRONT_TRIG_PIN, FRONT_ECHO_PIN);
+    }
+    if(side){
+        sideDist = readSensor(SIDE_TRIG_PIN, SIDE_ECHO_PIN);
+    }
+    
     // debug code block here
     //Serial.print("Front Distance: ");
     //Serial.print(frontDist);

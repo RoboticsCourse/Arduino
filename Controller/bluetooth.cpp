@@ -17,6 +17,7 @@ bool motor_on = false;
 bool steer_on = false; 
 bool neg = false;
 
+
 Bluetooth::Bluetooth(Navigation *navigation) {
   navo = navigation;
   BTLEserial.setDeviceName("Car_1"); /* 7 characters max! */

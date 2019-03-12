@@ -23,8 +23,8 @@ void loop() {
   }
   else{
     schedule++;
-    bluetooth->sendDistance("Front: ",us->get_front_dist());
-    //bluetooth->sendDistance("Side: ",us->get_side_dist());
+    bluetooth->sendDistance("F ",us->get_front_dist());
+    //bluetooth->sendDistance("S ",us->get_side_dist());
     bluetooth->BLEscan(); // connects to new device; if it's connected, does nothing
   }
 }
