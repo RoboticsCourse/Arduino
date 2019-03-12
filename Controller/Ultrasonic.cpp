@@ -30,45 +30,28 @@ US::US(Navigation *navigation){
     // set sensor pins accordingly
 }
 
-void readSensors() {
-    
-    pinMode(SIDE_TRIG_PIN, OUTPUT);
-    digitalWrite(SIDE_TRIG_PIN, LOW);
+int readSensor(int trig_pin, int echo_pin) {    
+    pinMode(trig_pin, OUTPUT);
+    digitalWrite(trig_pin, LOW);
     delayMicroseconds(2);
-    digitalWrite(SIDE_TRIG_PIN, HIGH);
+    digitalWrite(trig_pin, HIGH);
     delayMicroseconds(10);
-    digitalWrite(SIDE_TRIG_PIN, LOW);
-    pinMode(SIDE_ECHO_PIN, INPUT);
-
+    digitalWrite(trig_pin, LOW);
+    pinMode(echo_pin, INPUT);
     // read the echo pins, get the sound wave travel time in microseconds, calculate the distance
-    tmp = pulseIn(SIDE_ECHO_PIN, HIGH) * 0.034/2;
-    //sideDist = (tmp != 0) ? tmp : sideDist;
-    sideDist = tmp;
-
-    pinMode(FRONT_TRIG_PIN, OUTPUT);
-    // clear the trig pins
-    digitalWrite(FRONT_TRIG_PIN, LOW);
-    delayMicroseconds(2);
-    // set the trig pins on HIGH state for 10 micro seconds
-    digitalWrite(FRONT_TRIG_PIN, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(FRONT_TRIG_PIN, LOW);
-    pinMode(FRONT_ECHO_PIN, INPUT);
-    
-    tmp = pulseIn(FRONT_ECHO_PIN, HIGH) * 0.034/2;
-    //frontDist = (tmp != 0) ? tmp : frontDist;
-    frontDist = tmp;
+    return pulseIn(echo_pin, HIGH) * 0.034/2;
 }
 
 
 void US::sensorLoop(){
-    readSensors();
+    frontDist = readSensor(FRONT_TRIG_PIN, FRONT_ECHO_PIN);
+    sideDist = readSensor(SIDE_TRIG_PIN, SIDE_ECHO_PIN);
 
     // debug code block here
-    Serial.print("Front Distance: ");
-    Serial.print(frontDist);
-    Serial.print("\tSide Distance: ");
-    Serial.println(sideDist);
+    //Serial.print("Front Distance: ");
+    //Serial.print(frontDist);
+    //Serial.print("\tSide Distance: ");
+    //Serial.println(sideDist);
 /*
     if (frontDist < FRONT_THRESH) {
         if (sideDist < SIDE_THRESH_HIGH) {  // when encountering front and side walls, backup to the right
