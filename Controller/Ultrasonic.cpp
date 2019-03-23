@@ -1,12 +1,11 @@
 #include "Ultrasonic.h"
 
-#define SIDE_TRIG_PIN 5
-#define SIDE_ECHO_PIN 6
-#define FRONT_TRIG_PIN 4 // white is trig
-#define FRONT_ECHO_PIN 8 // brown is echo
-#define SIDE_THRESH_HIGH 70
-#define SIDE_THRESH_LOW 45
-#define FRONT_THRESH 50
+#define LEFT_TRIG_PIN 5
+#define LEFT_ECHO_PIN 6
+#define RIGHT_TRIG_PIN 4 // white is trig
+#define RIGHT_ECHO_PIN 8 // brown is echo
+#define HIGH_THRESH 100
+#define LOW_THRESH 70
 #define SPEED 80
 
 // defines distance variables
@@ -14,13 +13,13 @@
 int tmp;
 int wheel_speed;
 int turn_speed;
-int sideDist;
-int frontDist;
+int leftDist;
+int rightDist;
 Navigation *navi;
 
 
-bool front = true;
-bool side = true;
+bool right = true;
+bool left = true;
 
 
 
@@ -29,8 +28,8 @@ US::US(Navigation *navigation){
      // communication with sensors for debugging
     Serial.begin(9600);
     navi = navigation;
-    sideDist = 0;
-    frontDist = 0;
+    leftDist = 0;
+    rightDist = 0;
     wheel_speed = 60;
     turn_speed = 255;
     // set sensor pins accordingly
@@ -50,42 +49,37 @@ int readSensor(int trig_pin, int echo_pin) {
 
 
 void US::sensorLoop(){
-    if(front){
-        frontDist = readSensor(FRONT_TRIG_PIN, FRONT_ECHO_PIN);
+    if(right){
+        rightDist = readSensor(RIGHT_TRIG_PIN, RIGHT_ECHO_PIN);
     }
-    if(side){
-        sideDist = readSensor(SIDE_TRIG_PIN, SIDE_ECHO_PIN);
+    if(left){
+        leftDist = readSensor(LEFT_TRIG_PIN, LEFT_ECHO_PIN);
     }
     
     // debug code block here
-    //Serial.print("Front Distance: ");
-    //Serial.print(frontDist);
-    //Serial.print("\tSide Distance: ");
-    //Serial.println(sideDist);
+    //Serial.print("right Distance: ");
+    //Serial.print(rightDist);
+    //Serial.print("\tleft Distance: ");
+    //Serial.println(leftDist);
 
-    if (frontDist < FRONT_THRESH) {
-        if (sideDist < SIDE_THRESH_HIGH) {  // when encountering front and side walls, backup to the right
-            navi->turnRight(turn_speed);
-            navi->goBackward(wheel_speed);
-            delay(1500);
-        } else {                            // when encountering only the front wall, back up to the left
+    if (rightDist < LOW_THRESH) {
+        if (leftDist < LOW_THRESH) {
             navi->turnLeft(turn_speed);
             navi->goBackward(wheel_speed);
             delay(1500);
-        }
-    } else {    // when in a hallway, try to keep an equal distance between the walls
-        if (sideDist < SIDE_THRESH_LOW) {
-            navi->turnLeft(turn_speed);
-            navi->goForward(wheel_speed);
-        } else if (sideDist < SIDE_THRESH_HIGH){
-            navi->straighten();
-            navi->goForward(wheel_speed);
         } else {
+            navi->turnLeft(turn_speed);
+            navi->goForward(wheel_speed);
+        }
+    } else if (rightDist < HIGH_THRESH) {
+        if (leftDist < LOW_THRESH) {
             navi->turnRight(turn_speed);
             navi->goForward(wheel_speed);
         }
+    } else {
+        navi->turnRight(turn_speed);
+        navi->goForward(wheel_speed);
     }
-    
 }
 
 int US::get_wheel_speed(){
@@ -94,9 +88,9 @@ int US::get_wheel_speed(){
 int US::get_turn_speed(){
     return turn_speed;
 }
-int US::get_side_dist(){
-    return sideDist;
+int US::get_left_dist(){
+    return leftDist;
 }
-int US::get_front_dist(){
-    return frontDist;
+int US::get_right_dist(){
+    return rightDist;
 }
