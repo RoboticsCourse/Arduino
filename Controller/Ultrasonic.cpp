@@ -20,7 +20,10 @@ Navigation *navi;
 
 
 bool front = true;
-bool side = false;
+bool side = true;
+
+
+
 
 US::US(Navigation *navigation){
      // communication with sensors for debugging
@@ -30,7 +33,6 @@ US::US(Navigation *navigation){
     frontDist = 0;
     wheel_speed = 60;
     turn_speed = 255;
-
     // set sensor pins accordingly
 }
 
@@ -60,7 +62,7 @@ void US::sensorLoop(){
     //Serial.print(frontDist);
     //Serial.print("\tSide Distance: ");
     //Serial.println(sideDist);
-/*
+
     if (frontDist < FRONT_THRESH) {
         if (sideDist < SIDE_THRESH_HIGH) {  // when encountering front and side walls, backup to the right
             navi->turnRight(turn_speed);
@@ -83,7 +85,7 @@ void US::sensorLoop(){
             navi->goForward(wheel_speed);
         }
     }
-    */
+    
 }
 
 int US::get_wheel_speed(){

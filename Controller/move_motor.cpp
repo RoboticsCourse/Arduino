@@ -58,6 +58,8 @@ void Navigation::MotorSpeed(int speed){
 
 void Navigation::SteerSpeed(int speed){
   //speed = limitSpeed(speed, -200,200);
+  Serial.print(speed);
+  Serial.print("\n");
   if(speed > 0) {
     turnMotor->run(FORWARD);
   }

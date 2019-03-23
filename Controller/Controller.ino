@@ -1,3 +1,4 @@
+
 #include "bluetooth.h"
 #include "Ultrasonic.h"
 
@@ -12,19 +13,21 @@ void setup() {
   bluetooth = new Bluetooth(&nav);
   
   nav.setup();
-  //us = new US(&nav);
+  us = new US(&nav);
 
 }
 
 void loop() {
-  if(schedule == 10){
+  //if(schedule == 10){
     us->sensorLoop();
-    schedule = 0;
-  }
+    //schedule = 0;
+  //}
+  /*
   else{
     schedule++;
     bluetooth->sendDistance("F ",us->get_front_dist());
-    //bluetooth->sendDistance("S ",us->get_side_dist());
+    bluetooth->sendDistance("S ",us->get_side_dist());
     bluetooth->BLEscan(); // connects to new device; if it's connected, does nothing
   }
+  */
 }
