@@ -57,10 +57,10 @@ void US::sensorLoop(){
     }
     
     // debug code block here
-    //Serial.print("right Distance: ");
-    //Serial.print(rightDist);
-    //Serial.print("\tleft Distance: ");
-    //Serial.println(leftDist);
+    Serial.print("Left Distance: ");
+    Serial.print(leftDist);
+    Serial.print("\tRight Distance: ");
+    Serial.println(rightDist);
 
     if (rightDist < LOW_THRESH) {
         if (leftDist < LOW_THRESH) {

@@ -9,8 +9,8 @@ class US{
         void sensorLoop();
         int get_wheel_speed();
         int get_turn_speed();
-        int get_side_dist();
-        int get_front_dist();
+        int get_left_dist();
+        int get_right_dist();
 };
 
 #endif
