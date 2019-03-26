@@ -4,9 +4,10 @@
 #define SIDE_ECHO_PIN 6
 #define FRONT_TRIG_PIN 4
 #define FRONT_ECHO_PIN 8
-#define SIDE_THRESH_HIGH 70
+#define SIDE_THRESH_HIGH 120
+#define SIDE_THRESH_MED 70
 #define SIDE_THRESH_LOW 45
-#define FRONT_THRESH 50
+#define FRONT_THRESH 30
 #define SPEED 80
 
 #define FRONT_ENABLED true
@@ -21,7 +22,9 @@ int sideDist;
 int frontDist;
 Navigation *navi;
 
-
+long timestamp;
+enum states {hallway, leftTurn, overshoot, backRight, continueForward};
+states state;
 
 US::US(Navigation *navigation){
     // communication with sensors for debugging
@@ -31,6 +34,9 @@ US::US(Navigation *navigation){
     frontDist = 0;
     wheel_speed = 60;
     turn_speed = 255;
+    timestamp = 0;
+    state = hallway;
+
     // set sensor pins accordingly
     pinMode(SIDE_TRIG_PIN, OUTPUT);
     pinMode(SIDE_ECHO_PIN, INPUT);
@@ -45,19 +51,14 @@ int readSensor(int trig_pin, int echo_pin) {
     delayMicroseconds(10);
     digitalWrite(trig_pin, LOW);
     // read the echo pins, get the sound wave travel time in microseconds, calculate the distance
-    return pulseIn(echo_pin, HIGH) * 0.034/2;
+    return pulseIn(echo_pin, HIGH) * 0.017;
 }
 
 
 void US::sensorLoop() {
 
-    if(FRONT_ENABLED) {
-        frontDist = readSensor(FRONT_TRIG_PIN, FRONT_ECHO_PIN);
-    }
-
-    if(SIDE_ENABLED) {
-        sideDist = readSensor(SIDE_TRIG_PIN, SIDE_ECHO_PIN);
-    }
+    if(FRONT_ENABLED) frontDist = readSensor(FRONT_TRIG_PIN, FRONT_ECHO_PIN);
+    if(SIDE_ENABLED) sideDist = readSensor(SIDE_TRIG_PIN, SIDE_ECHO_PIN);
     
     // debug code block here
     //Serial.print("Front Distance: ");
@@ -65,40 +66,80 @@ void US::sensorLoop() {
     //Serial.print("\tSide Distance: ");
     //Serial.println(sideDist);
 
-    if (frontDist < FRONT_THRESH) {
-        if (sideDist < SIDE_THRESH_HIGH) {  // when encountering front and side walls, backup to the right
+    switch(state) {
+        case hallway:
+
+            // if about to crash, don't
+            if (frontDist < FRONT_THRESH) {
+                state = leftTurn;
+                timestamp = millis() + 4000;
+                break;
+            }
+
+            // keep going straight otherwise
+            if (sideDist < SIDE_THRESH_LOW) {
+                navi->turnLeft(turn_speed);
+                navi->goForward(wheel_speed);
+            } else if (sideDist < SIDE_THRESH_MED){
+                navi->straighten();
+                navi->goForward(wheel_speed);
+            } else if (sideDist < SIDE_THRESH_HIGH){
+                navi->turnRight(turn_speed);
+                navi->goForward(wheel_speed);
+            } else {
+                state = overshoot;
+                timestamp = millis() + 2500;
+            }
+
+            break;
+
+        case leftTurn:
+
             navi->turnRight(turn_speed);
             navi->goBackward(wheel_speed);
-            delay(1500);
-        } else {                            // when encountering only the front wall, back up to the left
-            navi->turnLeft(turn_speed);
-            navi->goBackward(wheel_speed);
-            delay(1500);
-        }
-    } else {    // when in a hallway, try to keep an equal distance between the walls
-        if (sideDist < SIDE_THRESH_LOW) {
-            navi->turnLeft(turn_speed);
-            navi->goForward(wheel_speed);
-        } else if (sideDist < SIDE_THRESH_HIGH){
+            
+            if (millis() > timestamp) {
+                state = continueForward;
+                timestamp = millis() + 3000;
+            }
+            break;
+
+        case overshoot:
+
             navi->straighten();
             navi->goForward(wheel_speed);
-        } else {
-            navi->turnRight(turn_speed);
+
+            if (millis() > timestamp) {
+                state = backRight;
+                timestamp = millis() + 4000;
+            }
+
+            break;
+
+        case backRight:
+
+            navi->turnLeft(turn_speed);
+            navi->goBackward(wheel_speed);
+
+            if (millis() > timestamp) {
+                state = continueForward;
+                timestamp = millis() + 5000;
+            }
+
+            break;
+
+        case continueForward:
+
+            navi->straighten();
             navi->goForward(wheel_speed);
-        }
+
+            if (millis() > timestamp) state = hallway;
+            break;
     }
     
 }
 
-int US::get_wheel_speed(){
-    return wheel_speed;
-}
-int US::get_turn_speed(){
-    return turn_speed;
-}
-int US::get_side_dist(){
-    return sideDist;
-}
-int US::get_front_dist(){
-    return frontDist;
-}
+int US::get_wheel_speed() { return wheel_speed; }
+int US::get_turn_speed() { return turn_speed; }
+int US::get_side_dist() { return sideDist; }
+int US::get_front_dist() { return frontDist; }
