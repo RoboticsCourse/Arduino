@@ -2,12 +2,15 @@
 
 #define SIDE_TRIG_PIN 5
 #define SIDE_ECHO_PIN 6
-#define FRONT_TRIG_PIN 4 // white is trig
-#define FRONT_ECHO_PIN 8 // brown is echo
+#define FRONT_TRIG_PIN 4
+#define FRONT_ECHO_PIN 8
 #define SIDE_THRESH_HIGH 70
 #define SIDE_THRESH_LOW 45
 #define FRONT_THRESH 50
 #define SPEED 80
+
+#define FRONT_ENABLED true
+#define SIDE_ENABLED true
 
 // defines distance variables
 
@@ -19,41 +22,40 @@ int frontDist;
 Navigation *navi;
 
 
-bool front = true;
-bool side = true;
-
-
-
 
 US::US(Navigation *navigation){
-     // communication with sensors for debugging
-    Serial.begin(9600);
+    // communication with sensors for debugging
+    // Serial.begin(9600);
     navi = navigation;
     sideDist = 0;
     frontDist = 0;
     wheel_speed = 60;
     turn_speed = 255;
     // set sensor pins accordingly
+    pinMode(SIDE_TRIG_PIN, OUTPUT);
+    pinMode(SIDE_ECHO_PIN, INPUT);
+    pinMode(FRONT_TRIG_PIN, OUTPUT);
+    pinMode(FRONT_ECHO_PIN, INPUT);
 }
 
 int readSensor(int trig_pin, int echo_pin) {    
-    pinMode(trig_pin, OUTPUT);
     digitalWrite(trig_pin, LOW);
     delayMicroseconds(2);
     digitalWrite(trig_pin, HIGH);
     delayMicroseconds(10);
     digitalWrite(trig_pin, LOW);
-    pinMode(echo_pin, INPUT);
     // read the echo pins, get the sound wave travel time in microseconds, calculate the distance
     return pulseIn(echo_pin, HIGH) * 0.034/2;
 }
 
 
-void US::sensorLoop(){
-    if(front){
+void US::sensorLoop() {
+
+    if(FRONT_ENABLED) {
         frontDist = readSensor(FRONT_TRIG_PIN, FRONT_ECHO_PIN);
     }
-    if(side){
+
+    if(SIDE_ENABLED) {
         sideDist = readSensor(SIDE_TRIG_PIN, SIDE_ECHO_PIN);
     }
     
