@@ -4,7 +4,7 @@
 #define SIDE_ECHO_PIN 6
 #define FRONT_TRIG_PIN 4
 #define FRONT_ECHO_PIN 8
-#define SIDE_THRESH_HIGH 120
+#define SIDE_THRESH_HIGH 300
 #define SIDE_THRESH_MED 70
 #define SIDE_THRESH_LOW 45
 #define FRONT_THRESH 30
@@ -84,8 +84,14 @@ void US::sensorLoop() {
                 navi->straighten();
                 navi->goForward(wheel_speed);
             } else if (sideDist < SIDE_THRESH_HIGH){
-                navi->turnRight(turn_speed);
-                navi->goForward(wheel_speed);
+                if (millis() > timestamp) {
+                    navi->turnRight(turn_speed);
+                    navi->goForward(wheel_speed);
+                    timestamp = millis() + 100;
+                } else{
+                    navi->straighten();
+                    navi->goForward(wheel_speed);
+                }
             } else {
                 state = overshoot;
                 timestamp = millis() + 2500;
@@ -106,6 +112,13 @@ void US::sensorLoop() {
 
         case overshoot:
 
+            // if about to crash, don't
+            if (frontDist < FRONT_THRESH) {
+                state = leftTurn;
+                timestamp = millis() + 4000;
+                break;
+            }
+
             navi->straighten();
             navi->goForward(wheel_speed);
 
@@ -118,7 +131,7 @@ void US::sensorLoop() {
 
         case backRight:
 
-            navi->turnLeft(turn_speed);
+            navi->turnLeft(turn_speed * 0.8);
             navi->goBackward(wheel_speed);
 
             if (millis() > timestamp) {
@@ -129,6 +142,13 @@ void US::sensorLoop() {
             break;
 
         case continueForward:
+
+            // if about to crash, don't
+            if (frontDist < FRONT_THRESH) {
+                state = leftTurn;
+                timestamp = millis() + 4000;
+                break;
+            }
 
             navi->straighten();
             navi->goForward(wheel_speed);
